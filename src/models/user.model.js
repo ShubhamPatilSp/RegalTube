@@ -37,8 +37,8 @@ const UserSchema = new Schema({
         ref: "Video"
     }
     ],
-    passwords:{
-        typeof: String, 
+    password:{
+        type: String, 
         required: [true, "Password is required"]
     },
     refreshToken:{
@@ -53,7 +53,7 @@ const UserSchema = new Schema({
 UserSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return next();
 
-    this.password = bcrypt.hash(this.password, 10)
+    this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 UserSchema.methods.isPasswordCorrect = async function 
@@ -61,7 +61,7 @@ UserSchema.methods.isPasswordCorrect = async function
     return await bcrypt.compare(password, this.password)
 }
 
-userSchema.methods.generateAccessToken = async function(){
+UserSchema.methods.generateAccessToken = async function(){
    return jwt.sign({
         _id: this._id,
         email: this.email,
@@ -76,7 +76,7 @@ userSchema.methods.generateAccessToken = async function(){
 
 )
 }
-userSchema.methods.getRefreshToken = async function(){
+UserSchema.methods.getRefreshToken = async function(){
     return jwt.sign({
         _id: this._id,
     },
